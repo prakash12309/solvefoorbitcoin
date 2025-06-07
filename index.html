@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAPTCHA Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      width: 300px;
+      text-align: center;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .captcha {
+      font-size: 24px;
+      letter-spacing: 3px;
+      font-weight: bold;
+      background: #fff;
+      color: #000;
+      padding: 10px;
+      margin: 10px 0;
+      user-select: none;
+    }
+    #withdraw-section input {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-page">
+    <h2>Win 0.1 Bitcoin by Solving CAPTCHA</h2>
+    <h3>Login</h3>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Enter</button>
+  </div>  <div class="container" id="captcha-page" style="display:none;">
+    <div id="progress">0/20</div>
+    <div class="captcha" id="captcha-box"></div>
+    <input type="text" id="captcha-input" placeholder="Enter CAPTCHA">
+    <button onclick="submitCaptcha()">Submit</button>
+  </div>  <div class="container" id="success-page" style="display:none;">
+    <h2>🎉 Congratulations</h2>
+    <p>You won 0.1 Bitcoin</p>
+    <div id="withdraw-section">
+      <input type="text" id="btc-address" placeholder="Enter BTC Address">
+      <button onclick="withdraw()">Withdraw</button>
+    </div>
+  </div>  <div class="container" id="fail-page" style="display:none;">
+    <h2>Sorry</h2>
+    <p>You entered wrong answer!</p>
+  </div>  <div class="container" id="final-page" style="display:none;">
+    <h2>✅ Success</h2>
+    <p>Check your wallet after 24 hours!</p>
+  </div>  <script>
+    let currentIndex = parseInt(localStorage.getItem('currentIndex')) || 0;
+    let captchas = [];
+    let currentCaptcha = '';
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      if (username && password) {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('captcha-page').style.display = 'block';
+        generateCaptchas();
+        showCaptcha();
+      }
+    }
+
+    function generateCaptchas() {
+      const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      for (let i = 0; i < 20; i++) {
+        let code = '';
+        for (let j = 0; j < 10; j++) {
+          code += charset[Math.floor(Math.random() * charset.length)];
+        }
+        captchas.push(code);
+      }
+    }
+
+    function showCaptcha() {
+      if (currentIndex < 20) {
+        currentCaptcha = captchas[currentIndex];
+        document.getElementById('captcha-box').innerText = currentCaptcha;
+        document.getElementById('progress').innerText = `${currentIndex + 1}/20`;
+        document.getElementById('captcha-input').value = '';
+      }
+    }
+
+    function submitCaptcha() {
+      const userInput = document.getElementById('captcha-input').value;
+      if (userInput === currentCaptcha) {
+        currentIndex++;
+        localStorage.setItem('currentIndex', currentIndex);
+        if (currentIndex === 20) {
+          localStorage.removeItem('currentIndex');
+          document.getElementById('captcha-page').style.display = 'none';
+          document.getElementById('success-page').style.display = 'block';
+        } else {
+          showCaptcha();
+        }
+      } else {
+        localStorage.removeItem('currentIndex');
+        document.getElementById('captcha-page').style.display = 'none';
+        document.getElementById('fail-page').style.display = 'block';
+      }
+    }
+
+    function withdraw() {
+      const address = document.getElementById('btc-address').value;
+      if (address) {
+        document.getElementById('success-page').style.display = 'none';
+        document.getElementById('final-page').style.display = 'block';
+      }
+    }
+  </script></body>
+</html>
